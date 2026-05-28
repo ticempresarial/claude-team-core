@@ -1,0 +1,16 @@
+{
+  "name": "claude-team-core",
+  "version": "0.1.0",
+  "description": "Equipo IA ticempresarial — agentes, skills y commands universales (stack-agnostic). Base común que cargan TODOS los proyectos de la agencia, independiente del stack (Perfex, CI3, Node, Laravel, WP). Aplica criterios de calidad UNIVERSAL sin penalizar por elección de framework.",
+  "author": {
+    "name": "ticempresarial",
+    "email": "djxcimpre@gmail.com",
+    "url": "https://codecanyon.net/user/ticempresarial"
+  },
+  "homepage": "https://github.com/ticempresarial/claude-team-core",
+  "repository": "https://github.com/ticempresarial/claude-team-core",
+  "license": "MIT",
+  "agents": "./agents",
+  "skills": "./skills",
+  "commands": "./commands"
+}
