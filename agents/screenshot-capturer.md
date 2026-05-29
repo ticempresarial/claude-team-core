@@ -1,6 +1,6 @@
 ---
 name: screenshot-capturer
-description: Captura screenshots REALES de un producto vía chrome-devtools MCP para usar en la descripción de CodeCanyon. NO genera imágenes con IA. Login automático con creds demo, navegación URL por URL, captura fullPage 1920x1080, opcional anotación con flechas/labels, subida a Cloudinary u hosting configurable. Devuelve array de URLs públicas listas para reemplazar [IMAGE_URL_N] del skill codecanyon-description-pattern. Usado por codecanyon-release durante /preparar-venta.
+description: Captura screenshots REALES de un producto vía chrome-devtools MCP para usar en la descripción de CodeCanyon. NO genera imágenes con IA. Login automático con creds demo, navegación URL por URL, captura fullPage 1920x1080. Guarda las capturas LOCALMENTE en sales/screenshots/ del producto + genera image-urls-mapping.md con placeholder de URL base para que el usuario suba las imágenes a su propio servidor. Usado por codecanyon-release durante /preparar-venta.
 model: sonnet
 ---
 
@@ -122,75 +122,86 @@ from PIL import Image, ImageDraw, ImageFont
 
 Por default: NO anotar. Capturas limpias suelen vender mejor.
 
-### Fase 6 — Subida a hosting
+### Fase 6 — Guardado local (NO upload automático)
 
-#### Opción A — Cloudinary (default, recomendado)
+⚠️ **DECISIÓN del usuario** (sesión 2026-05-28): NO se sube a Cloudinary ni a ningún
+hosting externo. El usuario sube las imágenes manualmente a su propio servidor
+después de revisarlas.
 
-Requiere: variable de entorno `CLOUDINARY_UPLOAD_PRESET` y `CLOUDINARY_CLOUD_NAME`.
+**Acciones del agente**:
 
-Si no están configuradas, instruye al usuario:
-```
-1. Crear cuenta gratis en cloudinary.com (25 GB gratis)
-2. Settings → Upload presets → Create
-3. Modo: Unsigned
-4. Set folder: codecanyon-screenshots
-5. Anota el preset name y el cloud name
-6. Define las env vars:
-   $env:CLOUDINARY_CLOUD_NAME = "tu-cloud"
-   $env:CLOUDINARY_UPLOAD_PRESET = "tu-preset"
-```
+1. Crear directorio si no existe:
+   ```bash
+   mkdir -p <path-producto>/sales/screenshots/
+   ```
 
-Upload con curl:
-```bash
-curl -X POST "https://api.cloudinary.com/v1_1/$CLOUDINARY_CLOUD_NAME/image/upload" \
-  -F "upload_preset=$CLOUDINARY_UPLOAD_PRESET" \
-  -F "file=@01-dashboard.png" \
-  -F "folder=ticempresarial/<product-slug>"
-```
+2. Guardar cada captura con numeración secuencial:
+   ```
+   sales/screenshots/01-dashboard.png
+   sales/screenshots/02-feature-A-list.png
+   sales/screenshots/03-feature-A-detail.png
+   ...
+   sales/screenshots/18-mobile-dashboard.png
+   ```
 
-Cloudinary devuelve un JSON con `secure_url` que es la URL pública.
+3. Generar `sales/image-urls-mapping.md` con la lista para que el usuario
+   complete su URL base una sola vez:
 
-#### Opción B — SFTP a tu VPS
+   ```markdown
+   # Image URLs Mapping — <PRODUCT_NAME>
 
-Si el usuario configuró un VPS con HTTPS:
-- Requiere: `SFTP_HOST`, `SFTP_USER`, `SFTP_KEY` env vars
-- Subir vía `scp` o `sftp` a `/var/www/screenshots/<product>/`
-- URL pública: `https://screenshots.ticempresarial.com/<product>/<file>.png`
+   ## Cambia [TU_URL_BASE] por la URL pública de tu servidor
 
-#### Opción C — Envato CDN
+   Ejemplo: `https://screenshots.ticempresarial.com/<product-slug>`
 
-Solo disponible DESPUÉS de tener el item aprobado. Para primer submit: usar A o B.
+   ## Mapping para el template codecanyon-description-pattern
 
-### Fase 7 — Devolver array de URLs
+   | Placeholder | URL final |
+   |-------------|-----------|
+   | [IMAGE_URL_1]  | [TU_URL_BASE]/01-dashboard.png |
+   | [IMAGE_URL_2]  | [TU_URL_BASE]/02-feature-A-list.png |
+   | [IMAGE_URL_3]  | [TU_URL_BASE]/03-feature-A-detail.png |
+   | ... | ... |
+   | [IMAGE_URL_18] | [TU_URL_BASE]/18-mobile-dashboard.png |
+
+   ## Pasos para el usuario
+
+   1. Subir archivos de `sales/screenshots/` a tu servidor vía FTP/SFTP/rsync
+   2. Verificar que son accesibles: abrir [TU_URL_BASE]/01-dashboard.png en browser
+   3. Reemplazar `[TU_URL_BASE]` en este archivo
+   4. Reemplazar `[IMAGE_URL_N]` en descripcion-codecanyon.html con las URLs finales
+      (búsqueda y reemplazo en VS Code: Ctrl+H)
+   ```
+
+### Fase 7 — Reporte final al usuario
 
 Output esperado:
 
 ```markdown
-## ✅ Screenshots capturados y subidos
+## ✅ Screenshots capturados
 
-Total: 18 capturas a 1920x1080.
-Hosting: Cloudinary `cloud-name/ticempresarial/<product-slug>/`
-Tamaño promedio: 420 KB/imagen.
+- **Total**: 18 capturas a 1920x1080
+- **Tamaño promedio**: 420 KB/imagen
+- **Ubicación local**: <path-del-producto>/sales/screenshots/
+- **Mapping**: <path-del-producto>/sales/image-urls-mapping.md
 
-### URLs públicas (orden secuencial)
+## Próximos pasos para ti (Jose)
 
-1. https://res.cloudinary.com/<cloud>/image/upload/v1779.../01-dashboard.png
-2. https://res.cloudinary.com/<cloud>/image/upload/v1779.../02-feature-A-list.png
-...
-18. https://res.cloudinary.com/<cloud>/image/upload/v1779.../18-mobile-dashboard.png
+1. Abre `sales/screenshots/` y revisa las 18 capturas
+2. Si alguna no te gusta, dime cuál (ej. "captura 7 mostraba modal abierto, recaptura sin modal")
+3. Cuando estén OK, súbelas a tu servidor:
+   ```powershell
+   # Ejemplo SFTP con WinSCP, FileZilla o rsync
+   # Destino: /var/www/screenshots/<product-slug>/
+   ```
+4. Editar `sales/image-urls-mapping.md` y cambiar `[TU_URL_BASE]` por tu URL real
+5. En `descripcion-codecanyon.html`: Ctrl+H, reemplazar `[IMAGE_URL_N]`
+   con las URLs del mapping
 
-### Mapping para template codecanyon-description-pattern
+## Mobile screenshots (incluidas)
 
-[IMAGE_URL_1]  → https://res.cloudinary.com/.../01-dashboard.png
-[IMAGE_URL_2]  → https://res.cloudinary.com/.../02-feature-A-list.png
-...
-[IMAGE_URL_18] → https://res.cloudinary.com/.../18-mobile-dashboard.png
-
-### Locales guardados
-Todas las PNG originales también guardadas en:
-  <path-del-producto>/sales/screenshots/
-
-Backup para que puedas re-uploadear si Cloudinary se cae.
+Las últimas 2-3 capturas son responsive mobile (375x667).
+Sirven para mostrar a CodeCanyon que el producto está optimizado para móvil.
 ```
 
 ## Reglas duras

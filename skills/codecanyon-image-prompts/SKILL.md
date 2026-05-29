@@ -1,12 +1,26 @@
 ---
 name: codecanyon-image-prompts
-description: Genera prompts optimizados para Midjourney / DALL-E / Imagen / Stable Diffusion que producen los 3 assets gráficos del listing CodeCanyon (Item Icon 80x80, Inline Preview 590x300, Hi-res Cover 2340x1560). NO genera las imágenes — solo los prompts. El usuario los pega en su herramienta IA favorita. Complementa al skill codecanyon-assets (medidas exactas) y al agente screenshot-capturer (capturas reales del producto, NO IA).
+description: Genera prompts optimizados para Midjourney / DALL-E (vía ChatGPT o Bing Image Creator gratis) / Google Imagen / Adobe Firefly que producen los 3 assets gráficos del listing CodeCanyon (Item Icon 80x80, Inline Preview 590x300, Hi-res Cover 2340x1560). NO genera las imágenes — solo los prompts listos para copy-paste en el navegador. El usuario los pega en su herramienta IA favorita, descarga los PNG y los pone manualmente en sales/listing-assets/ del producto. Complementa al skill codecanyon-assets (medidas exactas) y al agente screenshot-capturer (capturas reales del producto, NO IA).
 ---
 
 # Patrón canónico — Prompts IA para los 3 assets gráficos del listing CodeCanyon
 
 > Este skill NO genera imágenes. Genera PROMPTS que el usuario pega en su
-> herramienta favorita (Midjourney v6+, DALL-E 3, Google Imagen, Stable Diffusion).
+> herramienta favorita en el navegador. El usuario descarga los PNG y los pone
+> manualmente en `sales/listing-assets/` del producto.
+
+## Herramientas en navegador recomendadas (sin instalar nada)
+
+| Herramienta | URL | Costo | Calidad |
+|-------------|-----|-------|---------|
+| **Bing Image Creator** | bing.com/create | Gratis (límite diario) | Alta (DALL-E 3) |
+| **ChatGPT + DALL-E 3** | chat.openai.com | $20/mes Plus | Alta |
+| **Google Gemini + Imagen** | gemini.google.com | Gratis con cuenta | Alta |
+| **Adobe Firefly** | firefly.adobe.com | $5/mes (gratis 25 créditos/mes) | Alta + mejor para texto |
+| **Midjourney** | midjourney.com (Discord) | $10-30/mes | Top tier estética |
+
+**Recomendación si quieres GRATIS**: Bing Image Creator + Google Gemini.
+**Recomendación si pagas algo**: ChatGPT Plus + Midjourney.
 
 ## Qué hace este skill (y qué NO hace)
 
